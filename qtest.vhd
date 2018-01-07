@@ -27,7 +27,8 @@ begin
 		generic map(baud => 115200, clock_frequency => 50000000)
 		port map (MAX10_CLK1_50, KEY(0), GPIO(0), GPIO(1), uart_out, uart_out_start, uart_out_done, uart_in_data, uart_in_flag);
 	 
-	 nbody: work.nbody
+	 nbody: entity work.nbody
 		port map (MAX10_CLK1_50, KEY(0), uart_out, uart_out_start, uart_out_done, uart_in_data, uart_in_flag);
 	 
+--	 LEDR(0) <= uart_out_start;
 end arch;
