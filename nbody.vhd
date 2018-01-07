@@ -3,6 +3,11 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 entity nbody is
+	generic(
+		DATA_W:           integer := 64;
+		BYTES_N:				integer := 8
+	);
+	
 	port (
 		clk:		in std_logic;
 		reset: 	in std_logic;
@@ -20,12 +25,12 @@ entity nbody is
 end nbody;
 		
 architecture arch of nbody is
-constant ADDRESS_W:	integer := 8;
-constant DATA_W:     integer := 128;
-
 -----------------------------------------------------------------------------------
 -- ***************************** Math processor ***********************************
 ----------------------------------------------------------------------------------
+signal rx_a, rx_b, ry_a, ry_b:	unsigned(DATA_W - 1 downto 0);
+signal start:	std_logic;
+
 signal diff_x:	   unsigned(63 downto 0);
 signal diff_y:	   unsigned(63 downto 0);
 signal en_out1:	std_logic;
@@ -65,26 +70,24 @@ signal x_1_5b:			unsigned(63 downto 0);
 -- fast inv square root - stage 4 
 signal en_out9:	std_logic;
 signal fisr_res:	unsigned(63 downto 0);
-
------------------------------------------------------------------------------
--- ************************* Controllers ************************************
------------------------------------------------------------------------------
-signal up_pos:				std_logic;
-signal up_addr:			unsigned(ADDRESS_W - 1 downto 0);
-signal vx, vy:			   unsigned(63 downto 0);
-signal restart:			std_logic;	
 begin		
+----------------------------------------------------------------------------------
+--****************************** UART *****************************************
+----------------------------------------------------------------------------------
+	uart_in:	work.uart_in_fsm
+		port map(clk, reset, uart_in_data, uart_in_flag, rx_a, rx_b, ry_a, ry_b, start);
+
 -----------------------------------------------------------------------------------
 -- ***************************** Math processor ***********************************
 -----------------------------------------------------------------------------------
 	-- 5 stage pipeline to calculate ((rx_a - rx_b)**2 + (ry_a -ry_b)**2)**3
 	-- calculate (rx_a - rx_b) and (ry_a - ry_b)
 	r_stage1: work.r_st1
-		port map(clk, reset, '1', 
-		rx_a => "0100000001110001001000000000000000000000000000000000000000000000", -- 274 
-		rx_b => "0100000010000001010110000000000000000000000000000000000000000000", -- 555 => 555 - 274 = 281
-		ry_a => "0000000000000000000000000000000000000000000000000000000000000000", -- 0
-		ry_b => "0100000001110011101100000000000000000000000000000000000000000000", -- 315
+		port map(clk, reset, start, 
+		rx_a, 
+		rx_b ,
+		ry_a ,
+		ry_b ,
 		diff_x => diff_x, diff_y => diff_y, en_out=> en_out1);
 	
 	-- calculate diffx ** 2 + diffy ** 2
@@ -127,5 +130,4 @@ begin
 -----------------------------------------------------------------------------
 -- **************************** DEBUG ***************************************
 -----------------------------------------------------------------------------
-		
 end arch;
