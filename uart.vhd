@@ -281,9 +281,8 @@ begin
                             uart_tx_data  <= '0';
                             uart_tx_state <= tx_send_data;
                             uart_tx_count <= (others => '0');
+                            uart_rx_data_in_ack <= '1';
                             uart_tx_data_vec <= data_stream_in;
-								else
-									uart_rx_data_in_ack <= '1';
                         end if;
                     when tx_send_data =>
                         if tx_baud_tick = '1' then
@@ -304,14 +303,12 @@ begin
                         if tx_baud_tick = '1' then
                             uart_tx_data <= '1';
                             uart_tx_state <= tx_send_start_bit;
-									 uart_rx_data_in_ack <= '1';
                         end if;
                     when others =>
                         uart_tx_data <= '1';
                         uart_tx_state <= tx_send_start_bit;
-								uart_rx_data_in_ack <= '1';
                 end case;
             end if;
         end if;
-    end process uart_send_data;    
+    end process uart_send_data;   
 end rtl;

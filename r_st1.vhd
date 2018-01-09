@@ -34,7 +34,7 @@ end process;
 
 -- Next state logic
 
-process(en_in, rx_a, rx_b, ry_a, ry_b)
+process(en_in)
 begin
 	if en_in = '1' then
 		en_out_next <= '1';
