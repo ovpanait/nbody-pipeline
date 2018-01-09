@@ -12,6 +12,11 @@ void setup() {
 uint8_t data_pc, data_fpga;
 uint8_t ind = 0;
 
+uint8_t rxa[8] = { 0x40, 0x14, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+uint8_t rxb[8] = { 0x40, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+uint8_t rya[8] = { 0x40, 0x88, 0x88, 0x00, 0x00, 0x00, 0x00, 0x00 };
+uint8_t ryb[8] = { 0x40, 0x7B, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+
 void loop() {
   // put your main code here, to run repeatedly:
 
@@ -20,9 +25,20 @@ void loop() {
  if(Serial.available()) {
     
     data_pc = Serial.read();
-
-    mySerial.print(0x00);
-
+    switch(data_pc) {
+      case '1':
+        mySerial.write(rxa, 8);
+        break;
+      case '2':
+        mySerial.write(rxb, 8);
+        break;
+      case '3':
+        mySerial.write(rya, 8);
+        break;
+      case '4':
+        mySerial.write(ryb, 8);
+        break;
+    }
 
   }
 
@@ -32,7 +48,7 @@ void loop() {
       
       Serial.print(data_fpga, HEX);
       if (ind == 7) {
-        ind = 0; 
+       ind = 0; 
         Serial.print("\n");
       }
       else ind++;

@@ -70,33 +70,38 @@ begin
 		in_cnt_next		<= in_cnt_reg;
 
 		if (uart_in_flag = '1') then
---			if (byte_cnt_reg = BYTES_N - 1) then
---				in_cnt_next 	<= in_cnt_reg + 1;
---				byte_cnt_next 	<= (others => '0');
---			else
---				byte_cnt_next <= byte_cnt_reg + 1;
---			end if;
---			case to_integer(in_cnt_reg) is
---				when 0 => 
---					rxa_next <= rxa_reg(DATA_W - 9 downto 0) & uart_in_data;
---				when 1 =>
---					rya_next <= rya_reg(DATA_W - 9 downto 0) & uart_in_data;
---				when 2 => 
---					rxb_next <= rxb_reg(DATA_W - 9 downto 0) & uart_in_data;
---				when OUT_NR - 1 =>
---					ryb_next 	<= ryb_reg(DATA_W - 9 downto 0) & uart_in_data;
---					eno_next 	<= '1';
---					in_cnt_next <=	(others => '0');
---				when others =>
---					in_cnt_next <=	(others => '0');
---			end case;			
---		end if;
-			eno_next 	<= '1';
-			rxa_next <= (others => '0');
-			rxb_next <= (others => '0');
-			rya_next <= (others => '0');
-			ryb_next <= (others => '0');
+			if (byte_cnt_reg = BYTES_N - 1) then
+				if (in_cnt_reg = OUT_NR - 1) then
+					in_cnt_next <=	(others => '0');
+					eno_next 	<= '1';
+				else 
+					in_cnt_next 	<= in_cnt_reg + 1;
+				end if;
+				
+				byte_cnt_next 	<= (others => '0');
+			else
+				byte_cnt_next <= byte_cnt_reg + 1;
+			end if;
+
+			case to_integer(in_cnt_reg) is
+				when 0 => 
+					rxa_next <= rxa_reg(DATA_W - 9 downto 0) & uart_in_data;
+				when 1 =>
+					rya_next <= rya_reg(DATA_W - 9 downto 0) & uart_in_data;
+				when 2 => 
+					rxb_next <= rxb_reg(DATA_W - 9 downto 0) & uart_in_data;
+				when 3 =>
+					ryb_next <= ryb_reg(DATA_W - 9 downto 0) & uart_in_data;
+				when others =>
+
+			end case;			
 		end if;
+		
+--		eno_next 	<= '1';
+--		rxa_next <= (others => '0');
+--		rxb_next <= (others => '0');
+--		rya_next <= (others => '0');
+--		ryb_next <= (others => '0');
 	end process;
 	
 	rx_a 		<= rxa_reg;
