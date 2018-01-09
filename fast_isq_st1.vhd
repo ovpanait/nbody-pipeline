@@ -44,8 +44,13 @@ begin
 	
 	process(input, en_in, MN_F)
 	begin
-		x_next <= (MN_F - ('0' & input(63 downto 1))); -- i  = MAGIC_NR - ( i >> 1 );
-		en_out_next <= '1';
+		if (en_in = '1') then
+			x_next <= (MN_F - ('0' & input(63 downto 1))); -- i  = MAGIC_NR - ( i >> 1 );
+			en_out_next <= '1';
+		else 
+			x_next <= (others => '0');
+			en_out_next <= '0';
+		end if;
 	end process;
 	
 	input_half: work.fpmu

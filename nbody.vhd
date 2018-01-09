@@ -70,6 +70,9 @@ signal x_1_5b:			unsigned(63 downto 0);
 -- fast inv square root - stage 4 
 signal en_out9:	std_logic;
 signal fisr_res:	unsigned(63 downto 0);
+
+--
+signal debug:		std_logic;
 begin		
 ----------------------------------------------------------------------------------
 --****************************** UART *****************************************
