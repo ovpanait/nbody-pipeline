@@ -81,7 +81,7 @@ begin
 		port map(clk, reset, uart_in_data, uart_in_flag, rx_a, rx_b, ry_a, ry_b, start);
 
 	uart_output: work.uart_out_fsm
-		port map(clk, reset, uart_out, uart_out_start, uart_out_done, fisr_res, en_out9);
+		port map(clk, reset, uart_out, uart_out_start, uart_out_done, rx_a, en_out9);
 -----------------------------------------------------------------------------------
 -- ***************************** Math processor ***********************************
 -----------------------------------------------------------------------------------
@@ -90,9 +90,9 @@ begin
 	r_stage1: work.r_st1
 		port map(clk, reset, start, 
 		rx_a, 
-		rx_b ,
-		ry_a ,
-		ry_b ,
+		rx_b,
+		ry_a,
+		ry_b,
 		diff_x => diff_x, diff_y => diff_y, en_out=> en_out1);
 	
 	-- calculate diffx ** 2 + diffy ** 2
@@ -112,7 +112,7 @@ begin
 	
 	-- calculate r**3
 	r_stage5: work.r_st5
-		port map(clk, reset, en_out4, r => r, r_sq => r_sq, r_cube => r_cube,
+		port map(clk, reset, en_out4, r => r_buf, r_sq => r_sq, r_cube => r_cube,
 		en_out => en_out5);
 
 	-- 4-stage pipelined fst inverse squared root

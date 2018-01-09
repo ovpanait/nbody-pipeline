@@ -54,39 +54,37 @@ begin
 	process(grav_result, en_in, uart_out_done, uart_out_reg, uart_out_start_reg, byte_cnt_reg, state_reg, grav_res_reg)
 	begin
 			uart_out_next 			<= uart_out_reg;
-			uart_out_start_next 	<= '1';
+			uart_out_start_next 	<= uart_out_start_reg;
 			
 			byte_cnt_next			<= byte_cnt_reg;
 			grav_res_next			<= grav_res_reg;
 			state_next 				<= state_reg;
 
+		uart_out_next <= grav_res_reg(63 downto 56);
 		case state_reg is
 			when waiting =>
 				if en_in = '1' then
 					grav_res_next 	<= grav_result;
-					uart_out_start_next 	<= '1';
 					state_next		<= sending;
-				else
-					uart_out_start_next 	<= '0';
 				end if;
+				uart_out_start_next 	<= '0';
 			when sending =>
 				uart_out_start_next 	<= '1';
-				uart_out_next <= grav_res_reg(DATA_W - 1 downto DATA_W - 8);
 				state_next <= sending;
-			
 			if (uart_out_done = '1') then
+				grav_res_next <= grav_res_reg(DATA_W - 9 downto 0) & to_unsigned(0, uart_out'length);
 				if (byte_cnt_reg = BYTES_N - 1) then
 					byte_cnt_next 	<= (others => '0');
 					uart_out_start_next <= '0';
 					state_next <= waiting;
+					grav_res_next <= (others => '0');
 				else
 					byte_cnt_next <= byte_cnt_reg + 1;
-					state_next <= sending;
 				end if;
 
 				--uart_out_next <= (7 => '1', others => '0');
-				grav_res_next <= grav_res_reg(DATA_W - 9 downto 0) & to_unsigned(0, uart_out'length);
-			end if;
+--				state_next <= waiting;
+		end if;
 			when others =>
 				state_next <= waiting;
 			end case;
