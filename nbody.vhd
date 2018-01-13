@@ -81,7 +81,7 @@ begin
 		port map(clk, reset, uart_in_data, uart_in_flag, rx_a, rx_b, ry_a, ry_b, start);
 
 	uart_output: work.uart_out_fsm
-		port map(clk, reset, uart_out, uart_out_start, uart_out_done, rx_a, en_out9);
+		port map(clk, reset, uart_out, uart_out_start, uart_out_done, fisr_res, en_out9);
 -----------------------------------------------------------------------------------
 -- ***************************** Math processor ***********************************
 -----------------------------------------------------------------------------------
