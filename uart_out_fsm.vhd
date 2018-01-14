@@ -7,7 +7,6 @@ entity uart_out_fsm is
 		DATA_W:           integer := 64;
 		BYTES_N:				integer := 8
 	);
-	
 	port(
 		clk, reset:			in	std_logic;
 		
@@ -18,7 +17,6 @@ entity uart_out_fsm is
 		
 		grav_result:		in unsigned(DATA_W - 1 downto 0);
 		en_in:				in std_logic
---		debug:				in unsigned(7 downto 0);
 	);
 end uart_out_fsm;
 
@@ -27,8 +25,7 @@ signal byte_cnt_reg, byte_cnt_next:						unsigned(2 downto 0);
 signal grav_res_reg, grav_res_next:						unsigned(DATA_W - 1 downto 0);
 
 type state_type is (waiting, sending);
-
-signal uart_out_reg, uart_out_next:						unsigned(7 downto 0);
+signal uart_out_reg, uart_out_next:						unsigned(BYTES_N - 1 downto 0);
 signal uart_out_start_reg, uart_out_start_next:		std_logic;
 signal state_reg, state_next:								state_type;
 begin
@@ -60,7 +57,7 @@ begin
 			grav_res_next			<= grav_res_reg;
 			state_next 				<= state_reg;
 
-		uart_out_next <= grav_res_reg(63 downto 56);
+		uart_out_next <= grav_res_reg(DATA_W - 1 downto DATA_W - 8);
 		case state_reg is
 			when waiting =>
 				if en_in = '1' then
@@ -81,9 +78,6 @@ begin
 				else
 					byte_cnt_next <= byte_cnt_reg + 1;
 				end if;
-
-				--uart_out_next <= (7 => '1', others => '0');
---				state_next <= waiting;
 		end if;
 			when others =>
 				state_next <= waiting;

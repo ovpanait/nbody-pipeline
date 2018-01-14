@@ -12,12 +12,11 @@ entity uart_in_fsm is
 		clk, reset:					in	std_logic;
 
 		-- uart receiver
-		uart_in_data:	  			in unsigned(7 downto 0);		
+		uart_in_data:	  			in unsigned(BYTES_N - 1 downto 0);		
 		uart_in_flag: 				in std_logic;
 		
 		rx_a, rx_b, ry_a, ry_b:	out unsigned(DATA_W - 1 downto 0);
 		en_out:						out std_logic
---		debug:						out unsigned(7 downto 0)
 	);
 end uart_in_fsm;
 
@@ -96,12 +95,6 @@ begin
 
 			end case;			
 		end if;
-		
---		eno_next 	<= '1';
---		rxa_next <= (others => '0');
---		rxb_next <= (others => '0');
---		rya_next <= (others => '0');
---		ryb_next <= (others => '0');
 	end process;
 	
 	rx_a 		<= rxa_reg;
@@ -109,7 +102,5 @@ begin
 	ry_a 		<= rya_reg;
 	ry_b 		<= ryb_reg;
 	en_out 	<= eno_reg;
-	
---	debug <= to_unsigned(en_out, debug'length);
 end arch;
 		
