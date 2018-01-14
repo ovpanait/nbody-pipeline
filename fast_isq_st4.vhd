@@ -12,8 +12,8 @@ entity fast_isq_st4 is
 		reset:			in std_logic;
 		en_in:			in std_logic;
 
-		diff_x:		in unsigned(DATA_W - 1 downto 0);
-		diff_y:		in unsigned(DATA_W - 1 downto 0);		
+		diff_x:			in unsigned(DATA_W - 1 downto 0);
+		diff_y:			in unsigned(DATA_W - 1 downto 0);		
 		x_1_5:			in unsigned(DATA_W - 1 downto 0);
 		x_sqMx_half_x:	in unsigned(DATA_W - 1 downto 0);
 
