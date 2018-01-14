@@ -31,35 +31,50 @@ signal rx_a, rx_b, ry_a, ry_b:	unsigned(DATA_W - 1 downto 0);
 signal start:	std_logic;
 
 -- 5 stage pipeline for calculating (rx_b - rx_a) ^ 2 + (ry_b - ry_a) ^ 2
-signal diff_x:	   unsigned(DATA_W - 1 downto 0);
-signal diff_y:	   unsigned(DATA_W - 1 downto 0);
+signal diff_x:	   		unsigned(DATA_W - 1 downto 0);
+signal diff_y:	   		unsigned(DATA_W - 1 downto 0);
 
-signal diff_x_sq:	unsigned(DATA_W - 1 downto 0);
-signal diff_y_sq:	unsigned(DATA_W - 1 downto 0);
+signal diff_x_sq:			unsigned(DATA_W - 1 downto 0);
+signal diff_y_sq:			unsigned(DATA_W - 1 downto 0);
+signal diff_x_buf1:	   unsigned(DATA_W - 1 downto 0);
+signal diff_y_buf1:	   unsigned(DATA_W - 1 downto 0);
 
-signal r:			unsigned(DATA_W - 1 downto 0);
+signal r:					unsigned(DATA_W - 1 downto 0);
+signal diff_x_buf2:	   unsigned(DATA_W - 1 downto 0);
+signal diff_y_buf2:	   unsigned(DATA_W - 1 downto 0);
 
-signal r_sq:		unsigned(DATA_W - 1 downto 0);
-signal r_buf:		unsigned(DATA_W - 1 downto 0);
+signal r_sq:				unsigned(DATA_W - 1 downto 0);
+signal r_buf:				unsigned(DATA_W - 1 downto 0);
+signal diff_x_buf3:	   unsigned(DATA_W - 1 downto 0);
+signal diff_y_buf3:	   unsigned(DATA_W - 1 downto 0);
 
-signal r_cube:		unsigned(DATA_W - 1 downto 0);
+signal r_cube:				unsigned(DATA_W - 1 downto 0);
+signal diff_x_buf4:	   unsigned(DATA_W - 1 downto 0);
+signal diff_y_buf4:	   unsigned(DATA_W - 1 downto 0);
 
 -- 4 stage pipeline FAST INVERSE SQUARE ROOT
-signal x:				unsigned(DATA_W - 1 downto 0);	
-signal in_half:		unsigned(DATA_W - 1 downto 0);
+signal x:					unsigned(DATA_W - 1 downto 0);	
+signal in_half:			unsigned(DATA_W - 1 downto 0);
+signal diff_x_buf5:	   unsigned(DATA_W - 1 downto 0);
+signal diff_y_buf5:	   unsigned(DATA_W - 1 downto 0);
 
-signal x_sq:			unsigned(DATA_W - 1 downto 0);
-signal x_half_x:		unsigned(DATA_W - 1 downto 0);
-signal x_1_5:			unsigned(DATA_W - 1 downto 0);
+signal x_sq:				unsigned(DATA_W - 1 downto 0);
+signal x_half_x:			unsigned(DATA_W - 1 downto 0);
+signal x_1_5:				unsigned(DATA_W - 1 downto 0);
+signal diff_x_buf6:	   unsigned(DATA_W - 1 downto 0);
+signal diff_y_buf6:	   unsigned(DATA_W - 1 downto 0);
 
 signal x_sqMx_half_x:	unsigned(DATA_W - 1 downto 0);
 signal x_1_5b:				unsigned(DATA_W -1 downto 0);
+signal diff_x_buf7:	   unsigned(DATA_W - 1 downto 0);
+signal diff_y_buf7:	   unsigned(DATA_W - 1 downto 0);
 
-signal en_out9:	std_logic;
-signal fisr_res:	unsigned(DATA_W - 1 downto 0);
+signal fisr_res:			unsigned(DATA_W - 1 downto 0);
+signal diff_x_buf8:	   unsigned(DATA_W - 1 downto 0);
+signal diff_y_buf8:	   unsigned(DATA_W - 1 downto 0);
 
 -- enable signals
-signal en_vec:		std_logic_vector(9 downto 1);
+signal en_vec:				std_logic_vector(9 downto 1);
 begin		
 ----------------------------------------------------------------------------------
 --****************************** UART *****************************************
@@ -84,30 +99,30 @@ begin
 	
 	-- calculate diffx ** 2 + diffy ** 2
 	r_stage2: work.r_st2
-		port map(clk, reset,en_vec(1), diff_x, diff_y, diff_x_sq, diff_y_sq, en_vec(2)); 
+		port map(clk, reset,en_vec(1), diff_x, diff_y, diff_x_sq, diff_y_sq, diff_x_buf1, diff_y_buf1, en_vec(2)); 
 	
 	-- calculate r
 	r_stage3: work.r_st3
-		port map(clk, reset, en_vec(2), diff_x_sq, diff_y_sq, r, en_vec(3));
+		port map(clk, reset, en_vec(2), diff_x_buf1, diff_y_buf1, diff_x_sq, diff_y_sq, r, diff_x_buf2, diff_y_buf2, en_vec(3));
 	
 	-- calculate r**2
 	r_stage4: work.r_st4
-		port map(clk, reset, en_vec(3), r, r_buf, r_sq, en_vec(4));
+		port map(clk, reset, en_vec(3), diff_x_buf2, diff_y_buf2, r, r_buf, r_sq, diff_x_buf3, diff_y_buf3, en_vec(4));
 	
 	-- calculate r**3
 	r_stage5: work.r_st5
-		port map(clk, reset, en_vec(4), r_buf, r_sq, r_cube, en_vec(5));
+		port map(clk, reset, en_vec(4), diff_x_buf3, diff_y_buf3, r_buf, r_sq, r_cube, diff_x_buf4, diff_y_buf4, en_vec(5));
 
 	-- 4-stage pipelined fst inverse squared root
 	fast_isq1: work.fast_isq_st1
-		port map(clk, reset, en_vec(5), r_cube, x, in_half, en_vec(6));
+		port map(clk, reset, en_vec(5), diff_x_buf4, diff_y_buf4, r_cube, x, in_half, diff_x_buf5, diff_y_buf5, en_vec(6));
 	
 	fast_isq2: work.fast_isq_st2
-		port map(clk, reset, en_vec(6), x, in_half, x_sq, x_half_x, x_1_5, en_vec(7));
+		port map(clk, reset, en_vec(6), diff_x_buf5, diff_y_buf5, x, in_half, x_sq, x_half_x, x_1_5, diff_x_buf6, diff_y_buf6, en_vec(7));
 	
 	fast_isq3: work.fast_isq_st3
-		port map(clk, reset, en_vec(7), x_sq, x_half_x, x_1_5, x_sqMx_half_x, x_1_5b, en_vec(8));
+		port map(clk, reset, en_vec(7), diff_x_buf6, diff_y_buf6, x_sq, x_half_x, x_1_5, x_sqMx_half_x, x_1_5b, diff_x_buf7, diff_y_buf7, en_vec(8));
 	
 	fast_isq4: work.fast_isq_st4
-		port map(clk, reset, en_vec(8), x_1_5b, x_sqMx_half_x, fisr_res, en_vec(9));
+		port map(clk, reset, en_vec(8), diff_x_buf7, diff_y_buf7, x_1_5b, x_sqMx_half_x, fisr_res, diff_x_buf8, diff_y_buf8, en_vec(9));
 end arch;
