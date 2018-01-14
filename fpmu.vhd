@@ -3,21 +3,25 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 entity fpmu is
+	generic(
+		DATA_W:           integer := 64;
+		BYTES_N:				integer := 8
+	);
 	port(
 		clk: 		in std_logic;
 		reset:	in std_logic;
 		en_in:	in std_logic;
 		
-		a:			in unsigned(63 downto 0);
-		b:			in unsigned(63 downto 0);
+		a:			in unsigned(DATA_W - 1 downto 0);
+		b:			in unsigned(DATA_W - 1 downto 0);
 		
-		result:	out unsigned(63 downto 0);
+		result:	out unsigned(DATA_W - 1 downto 0);
 		en_out:	out std_logic
 	);
 end fpmu;
 
 architecture arch of fpmu is
-signal result_reg, result_next:		unsigned(63 downto 0);
+signal result_reg, result_next:		unsigned(DATA_W - 1 downto 0);
 signal en_out_reg, en_out_next:		std_logic;
 begin
 

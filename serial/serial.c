@@ -9,7 +9,8 @@
 #define RES_CNT 1
 #define BYTES_NR 8
 
-#define SERIAL_PORT "/dev/ttyUSB0"
+#define SERIAL_PORT0 "/dev/ttyUSB0"
+#define SERIAL_PORT1 "/dev/ttyUSB1"
 
 static int serial_fd;
 static struct termios tty;
@@ -17,8 +18,8 @@ static struct termios tty;
 int serial_setup(void)
 {
 	/* Open serial port */
-	serial_fd = open(SERIAL_PORT, O_RDWR | O_NOCTTY | O_SYNC);
-	if (serial_fd < 0) {
+	serial_fd = open(SERIAL_PORT0, O_RDWR | O_NOCTTY | O_SYNC);
+	if (serial_fd < 0 && (serial_fd = open(SERIAL_PORT1, O_RDWR | O_NOCTTY | O_SYNC)) < 0) {
 		perror("Open serial port:");
 		return EXIT_FAILURE;
 	}
