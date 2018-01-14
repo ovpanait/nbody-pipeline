@@ -73,8 +73,11 @@ signal fisr_res:			unsigned(DATA_W - 1 downto 0);
 signal diff_x_buf8:	   unsigned(DATA_W - 1 downto 0);
 signal diff_y_buf8:	   unsigned(DATA_W - 1 downto 0);
 
+-- 1 stage pipeline that calculates fx and fy
+signal fx, fy:				unsigned(DATA_W - 1 downto 0);
+
 -- enable signals
-signal en_vec:				std_logic_vector(9 downto 1);
+signal en_vec:				std_logic_vector(10 downto 1);
 begin		
 ----------------------------------------------------------------------------------
 --****************************** UART *****************************************
@@ -83,7 +86,7 @@ begin
 		port map(clk, reset, uart_in_data, uart_in_flag, rx_a, rx_b, ry_a, ry_b, start);
 
 	uart_output: work.uart_out_fsm
-		port map(clk, reset, uart_out, uart_out_start, uart_out_done, fisr_res, en_vec(9));
+		port map(clk, reset, uart_out, uart_out_start, uart_out_done, fx, fy, en_vec(10));
 -----------------------------------------------------------------------------------
 -- ***************************** Math processor ***********************************
 -----------------------------------------------------------------------------------
@@ -113,7 +116,7 @@ begin
 	r_stage5: work.r_st5
 		port map(clk, reset, en_vec(4), diff_x_buf3, diff_y_buf3, r_buf, r_sq, r_cube, diff_x_buf4, diff_y_buf4, en_vec(5));
 
-	-- 4-stage pipelined fst inverse squared root
+	-- 4-stage pipeline to calculate fast inverse square root
 	fast_isq1: work.fast_isq_st1
 		port map(clk, reset, en_vec(5), diff_x_buf4, diff_y_buf4, r_cube, x, in_half, diff_x_buf5, diff_y_buf5, en_vec(6));
 	
@@ -125,4 +128,9 @@ begin
 	
 	fast_isq4: work.fast_isq_st4
 		port map(clk, reset, en_vec(8), diff_x_buf7, diff_y_buf7, x_1_5b, x_sqMx_half_x, fisr_res, diff_x_buf8, diff_y_buf8, en_vec(9));
+		
+	-- 1 stage pipeline to calculate gravitational forces
+	fx_fy: work.calc_f
+		port map(clk, reset, en_vec(9), diff_x_buf8, diff_y_buf8, fisr_res, fx, fy, en_vec(10));
+		
 end arch;

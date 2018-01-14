@@ -47,7 +47,7 @@ begin
 		end if;
 	end process;
 	
-	process(diff_x, diff_y)
+	process(en_in, diff_x, diff_y)
 	begin
 		if (en_in = '1') then
 			diff_x_next <= diff_x;

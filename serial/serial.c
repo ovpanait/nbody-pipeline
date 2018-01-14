@@ -6,7 +6,7 @@
 #include <fcntl.h>
 
 #define IN_CNT 4
-#define RES_CNT 1
+#define RES_CNT 2
 #define BYTES_NR 8
 
 #define SERIAL_PORT0 "/dev/ttyUSB0"
@@ -111,7 +111,7 @@ int main(int argc, char **argv)
 	}
 
 	/* Read computation result from FPGA */
-	for (res_cnt = 0; res_cnt < RES_CNT; ++res_cnt)
+	for (res_cnt = 0; res_cnt < RES_CNT; ++res_cnt) {
 		for (bytes_cnt = 0; bytes_cnt < BYTES_NR; ++bytes_cnt) {
 			r_ret = read(serial_fd,  uart_result + bytes_cnt, 1);
 			if (r_ret == -1) {
@@ -119,13 +119,11 @@ int main(int argc, char **argv)
 				exit(EXIT_FAILURE);
 			}
 		}
-
-
-	/* Print computation result */
-	printf("Result: 0x");
-	for (i = 0; i < BYTES_NR; ++i)
-		printf("%x", uart_result[i]);
-	printf("\n");
-
+		/* Print computation result */
+		printf("Result%d: 0x", res_cnt);
+		for (i = 0; i < BYTES_NR; ++i)
+			printf("%02x", uart_result[i]);
+		printf("\n");
+	}
 	return EXIT_SUCCESS;
 }

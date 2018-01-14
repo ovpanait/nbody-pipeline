@@ -92,7 +92,6 @@ begin
 				when 3 =>
 					ryb_next <= ryb_reg(DATA_W - 9 downto 0) & uart_in_data;
 				when others =>
-
 			end case;			
 		end if;
 	end process;
