@@ -2,6 +2,12 @@ library ieee;
 use ieee.numeric_std.all;
 use ieee.std_logic_1164.all;
 
+--
+-- Due to resource constrains, I chose to implement a 2-particle controller to test
+-- the design. Even though this controller does not take advantage of the pipelined
+-- architecture, it is enough for a Proof-of-Concept.
+--
+
 entity grav_controller is
 	generic(
 		DATA_W:           integer := 64;
@@ -103,7 +109,6 @@ begin
 				state_next <= waiting;
 				
 				if (pipe_done = '1') then
-					-- This is only a two-particle proof-of-concept -> Hardcode this
 					part_regfile(0) <= pipe_din_p1;
 					part_regfile(1) <= pipe_din_p2;
 					data_ready := '1';
@@ -123,7 +128,15 @@ begin
 	
 	-- Turn particles' positions to unsigned
 	tr_u1: work.f_to_u
-		port map(clk, reset, en_to_unsigned_reg, part_regfile(0), vga_dout_p1_next, open);
+		port map(clk, reset, en_to_unsigned_reg, part_regfile(0), vga_dout_p1_reg, open);
 	tr_u2: work.f_to_u
-		port map(clk, reset, en_to_unsigned_reg, part_regfile(1), vga_dout_p2_next, open);
+		port map(clk, reset, en_to_unsigned_reg, part_regfile(1), vga_dout_p2_reg, open);
+		
+	pipe_dout_p1 	<= pipe_dout_p1_reg;
+	pipe_dout_p2 	<= pipe_dout_p2_reg;
+	pipe_start 		<= pipe_start_reg;
+	
+	vga_dout_p1		<= vga_dout_p1_reg;
+	vga_dout_p2		<= vga_dout_p2_reg;
+	vga_start		<= vga_start_reg;
 end arch;

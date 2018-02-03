@@ -5,7 +5,9 @@ use ieee.numeric_std.all;
 entity nbody is
 	generic(
 		DATA_W:           integer := 64;
-		BYTES_N:				integer := 8
+		BYTES_N:				integer := 8;
+		
+		VGA_DW:				integer := 10
 	);
 	
 	port (
@@ -78,15 +80,31 @@ signal fx, fy:				unsigned(DATA_W - 1 downto 0);
 
 -- enable signals
 signal en_vec:				std_logic_vector(10 downto 1);
+
+-- Controller --
+signal p1_new, p2_new, p1_cur, p2_cur:		unsigned(4*DATA_W - 1 downto 0);
+signal u_pos1, u_pos2:							unsigned(2*VGA_DW - 1 downto 0);
+signal vga_done, vga_start:					std_logic;
 begin		
 ----------------------------------------------------------------------------------
 --****************************** UART *****************************************
 ----------------------------------------------------------------------------------
-	uart_input:	work.uart_in_fsm
-		port map(clk, reset, uart_in_data, uart_in_flag, rx_a, rx_b, ry_a, ry_b, start);
+--	uart_input:	work.uart_in_fsm
+--		port map(clk, reset, uart_in_data, uart_in_flag, rx_a, rx_b, ry_a, ry_b, start);
 
 	uart_output: work.uart_out_fsm
 		port map(clk, reset, uart_out, uart_out_start, uart_out_done, fx, fy, en_vec(10));
+
+---------------------------------------------------------------------------------
+-- ***************************** Particle Controller ****************************
+---------------------------------------------------------------------------------
+	particle_controller: work.grav_controller
+		port map(clk, reset, p1_new, p2_new, en_vec(10), p1_cur, p2_cur, start,
+			vga_done, u_pos1, u_pos2, vga_start);
+	
+	display_controller: work. vga_controller
+		port map(clk, reset, vga_start, pos1, pos2, vga_done);
+
 -----------------------------------------------------------------------------------
 -- ***************************** Math processor ***********************************
 -----------------------------------------------------------------------------------
