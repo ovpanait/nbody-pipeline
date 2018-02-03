@@ -61,7 +61,8 @@ begin
 		end if;
 	end process;
 
-	process(en_in, uart_out_done, uart_out_reg, uart_out_start_reg, byte_cnt_reg, state_reg, fx, fy)
+	process(en_in, uart_out_done, uart_out_reg, uart_out_start_reg, byte_cnt_reg, state_reg, fx, fy,
+				in_cnt_reg, fx_reg, fy_reg)
 	begin
 			uart_out_next 			<= uart_out_reg;
 			uart_out_start_next 	<= uart_out_start_reg;
