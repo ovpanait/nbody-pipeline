@@ -83,7 +83,7 @@ signal en_vec:				std_logic_vector(10 downto 1);
 
 -- Controller --
 signal p1_new, p2_new, p1_cur, p2_cur:		unsigned(4*DATA_W - 1 downto 0);
-signal u_pos1, u_pos2:							unsigned(2*VGA_DW - 1 downto 0);
+signal u_pos1, u_pos2:							unsigned(2*DATA_W - 1 downto 0);
 signal vga_done, vga_start:					std_logic;
 begin		
 ----------------------------------------------------------------------------------
@@ -102,8 +102,8 @@ begin
 		port map(clk, reset, p1_new, p2_new, en_vec(10), p1_cur, p2_cur, start,
 			vga_done, u_pos1, u_pos2, vga_start);
 	
-	display_controller: work. vga_controller
-		port map(clk, reset, vga_start, pos1, pos2, vga_done);
+--	display_controller: work. vga_controller
+--		port map(clk, reset, vga_start, pos1, pos2, vga_done);
 
 -----------------------------------------------------------------------------------
 -- ***************************** Math processor ***********************************
