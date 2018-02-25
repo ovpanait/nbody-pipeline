@@ -8,6 +8,9 @@ use ieee.std_logic_1164.all;
 -- architecture, it is enough for a Proof of Concept.
 --
 
+-- Data layout:
+-- vel_x :: vel_y :: r_x :: r_y
+--
 entity grav_controller is
 	generic(
 		DATA_W:           integer := 64;
@@ -60,20 +63,6 @@ signal part_regfile: reg_file_type;
 -- State machine
 type state_type is (init, waiting, display);
 signal state_reg, state_next:		state_type;
-
-component f_to_u  
-	port(
-		clk:			in std_logic;
-		reset:		in std_logic;
-		en_in:		in std_logic;
-		
-		input:		in unsigned(63 downto 0);
-		
-		output:		out unsigned(63 downto 0);
-		en_out:		out std_logic
-	);
-end component; 
-  
 begin
 	process(clk, reset)
 	begin
@@ -136,16 +125,16 @@ begin
 	end process;
 	
 	-- Turn particles' positions to unsigned
---	tr_p1x: work.f_to_u(arch)
---		port map(clk, reset, en_to_unsigned_reg, part_regfile(0)(127 downto 64), vga_dout_p1_reg_x, open);
---	tr_p1y: work.f_to_u(arch)
---		port map(clk, reset, en_to_unsigned_reg, part_regfile(0)(63 downto 0), vga_dout_p1_reg_y, open);
+	tr_p1x: work.f_to_u(arch)
+		port map(clk, reset, en_to_unsigned_reg, part_regfile(0)(2*DATA_W -1  downto DATA_W), vga_dout_p1_reg_x, open);
+	tr_p1y: work.f_to_u(arch)
+		port map(clk, reset, en_to_unsigned_reg, part_regfile(0)(DATA_W - 1 downto 0), vga_dout_p1_reg_y, open);
 
---	tr_p2x: work.f_to_u(arch)
-	--	port map(clk, reset, en_to_unsigned_reg, part_regfile(1)(127 downto 64), vga_dout_p2_reg_x, open);
-	--tr_p2y: work.f_to_u(arch)
-	--	port map(clk, reset, en_to_unsigned_reg, part_regfile(1)(63 downto 0), vga_dout_p2_reg_y, open);
-		
+	tr_p2x: work.f_to_u(arch)
+		port map(clk, reset, en_to_unsigned_reg, part_regfile(1)(2*DATA_W - 1 downto DATA_W), vga_dout_p2_reg_x, open);
+	tr_p2y: work.f_to_u(arch)
+		port map(clk, reset, en_to_unsigned_reg, part_regfile(1)(DATA_W - 1 downto 0), vga_dout_p2_reg_y, open);
+
 	pipe_dout_p1 	<= pipe_dout_p1_reg;
 	pipe_dout_p2 	<= pipe_dout_p2_reg;
 	pipe_start 		<= pipe_start_reg;

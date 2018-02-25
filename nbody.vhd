@@ -21,7 +21,11 @@ entity nbody is
 
 		-- uart receiver
 		uart_in_data:	  	in unsigned(BYTES_N - 1 downto 0); --received data		
-		uart_in_flag: 		in std_logic -- byte received
+		uart_in_flag: 		in std_logic; -- byte received
+		
+		-- VGA signals
+		hsync, vsync:   	out std_logic;
+		rgb:            	out std_logic_vector(11 downto 0)
 		);
 end nbody;
 		
@@ -81,10 +85,13 @@ signal fx, fy:				unsigned(DATA_W - 1 downto 0);
 -- enable signals
 signal en_vec:				std_logic_vector(10 downto 1);
 
--- Controller --
+-- Particle Controller --
 signal p1_new, p2_new, p1_cur, p2_cur:		unsigned(4*DATA_W - 1 downto 0);
 signal u_pos1, u_pos2:							unsigned(2*DATA_W - 1 downto 0);
-signal vga_done, vga_start:					std_logic;
+signal vga_ready, vga_start:					std_logic;
+
+type p_buf is array (5 downto 0) of unsigned(4*DATA_W - 1 downto 0);
+signal p1_buf, p2_buf:	p_buf;
 begin		
 ----------------------------------------------------------------------------------
 --****************************** UART *****************************************
@@ -99,28 +106,70 @@ begin
 -- ***************************** Particle Controller ****************************
 ---------------------------------------------------------------------------------
 	particle_controller: work.grav_controller
-		port map(clk, reset, p1_new, p2_new, en_vec(10), p1_cur, p2_cur, start,
-			vga_done, u_pos1, u_pos2, vga_start);
-	
---	display_controller: work. vga_controller
---		port map(clk, reset, vga_start, pos1, pos2, vga_done);
+		port map(
+			clk => clk, 
+			reset => reset,
+			pipe_din_p1 => p1_new, 
+			pipe_din_p2 => p2_new, 
+			pipe_done => en_vec(10),
+			pipe_dout_p1 => p1_cur,
+			pipe_dout_p2 => p2_cur,
+			pipe_start => start,
+			vga_done => vga_ready,
+			vga_dout_p1 => u_pos1, 
+			vga_dout_p2 => u_pos2,
+			vga_start => vga_start);
 
+-----------------------------------------------------------------------------------
+-- *****************************VGA Controller ***********************************
+----------------------------------------------------------------------------------
+	pixel_generator: work.pixel_gen
+		port map(
+			clk => clk,
+			reset => reset, 
+			hsync => hsync, 
+			vsync => vsync,
+			rgb => rgb, 
+			p1 => u_pos1, 
+			p2 => u_pos2, 
+			start => vga_start, 
+			ready => vga_ready);
 -----------------------------------------------------------------------------------
 -- ***************************** Math processor ***********************************
 -----------------------------------------------------------------------------------
 	-- 5 stage pipeline to calculate ((rx_a - rx_b)**2 + (ry_a -ry_b)**2)**3
 	-- calculate (rx_a - rx_b) and (ry_a - ry_b)
 	r_stage1: work.r_st1
-		port map(clk, reset, start, 
-		rx_a, 
-		rx_b,
-		ry_a,
-		ry_b,
-		diff_x, diff_y, en_vec(1));
+		port map(
+			clk => clk,
+			reset => reset,
+			en_in => start, 
+			p1 => p1_cur,
+			p2 => p2_cur,
+			diff_x => diff_x,
+			diff_y => diff_y,
+			p1_buf => p1_buf(0),
+			p2_buf => p2_buf(0),
+			en_out => en_vec(1)
+			);
 	
 	-- calculate diffx ** 2 + diffy ** 2
 	r_stage2: work.r_st2
-		port map(clk, reset,en_vec(1), diff_x, diff_y, diff_x_sq, diff_y_sq, diff_x_buf1, diff_y_buf1, en_vec(2)); 
+		port map(
+			clk => clk,
+			reset => reset,
+			en_in => en_vec(1),
+			diff_x => diff_x,
+			diff_y => diff_y,
+			p1 => p1_cur,
+			p2 => p2_cur,
+			diff_x_sq => diff_x_sq,
+			diff_y_sq => diff_y_sq,
+			diff_x_buf => diff_x_buf1,
+			diff_y_buf => diff_y_buf1,
+			p1_buf => p1_buf(1),
+			p2_buf => p2_buf(1),
+			en_out => en_vec(2)); 
 	
 	-- calculate r
 	r_stage3: work.r_st3
