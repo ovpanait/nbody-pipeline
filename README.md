@@ -2,9 +2,10 @@
 
 Pipelined Newtonian N-Body Simulator Computational Engine
 ---------------------------------------------------------
-
+University project.
 - VHDL implementation of a pipelined Newtonian N-Body simulator computational engine
-- Testing was performed on a Altera DE10-Lite 
+- Tested on an Altera DE10-Lite Board.
+
 
 Features
 --------
